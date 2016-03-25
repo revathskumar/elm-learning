@@ -1,6 +1,9 @@
 import Graphics.Element exposing (..)
+import Graphics.Collage exposing (..)
 import Time exposing (..)
+import Color exposing (..)
 import Keyboard
+import Window
 
 type alias Ball = 
   { position : Float
@@ -30,13 +33,19 @@ update (dt, keys) ball =
 
 inputSignal : Signal (Float, Keys)
 inputSignal = 
-  let dt = fps 30
-      tuples = Signal.map2 (,) dt Keyboard.arrows
-  in Signal.sampleOn dt tuples
+  Signal.map2 (,) (fps 30) Keyboard.arrows
+
+view : (Int, Int) -> Ball -> Element
+view (w, h) ball =
+  collage w h 
+    [ circle 20 
+        |> filled (rgb 0 0 0) 
+        |> move (ball.position, 0)
+    ]
 
 dt = 100
 keys = { x = -1, y = 1}
 
 main : Signal Element
-main = Signal.map show (Signal.foldp update initBall inputSignal)
+main = Signal.map2 view Window.dimensions (Signal.foldp update initBall inputSignal)
 
