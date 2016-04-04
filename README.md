@@ -1,4 +1,4 @@
-## Sample ELM examples
+## ELM examples
 
 1. Hello World
 2. Export to external JS file
