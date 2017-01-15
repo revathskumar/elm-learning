@@ -1,8 +1,6 @@
-import Graphics.Element exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, on, targetValue)
-import Signal exposing (Signal, Address)
+import Html.Events exposing (onClick, onInput)
 
 type alias Todos = {
   items : List String,
@@ -10,7 +8,7 @@ type alias Todos = {
 }
 
 initTodos : Todos
-initTodos = 
+initTodos =
   {
     items = [],
     field = ""
@@ -22,45 +20,44 @@ addItem todos =
 
 type Action = NoOp | Add | UpdateField String
 
-view : Address Action -> Todos -> Html
-view address todos = 
+view : Todos -> Html Action
+view todos =
   div [] [
     h1 [] [text "Add Item"],
     div [] [
       input [
-        type' "text", 
+        type_ "text",
         name "list",
         value todos.field,
-        placeholder "Todo", 
-        on "input" targetValue (Signal.message address << UpdateField) 
+        placeholder "Todo",
+        onInput UpdateField
       ] [],
-      button [name "add", onClick address Add ] [text "Add Todo"]
+      button [name "add", (onClick Add) ] [text "Add Todo"]
     ],
     div [] [
       ul [] (List.map todoList todos.items)
     ]
   ]
 
-todoList : String -> Html
+todoList : String -> Html Action
 todoList item =
   li [] [text item]
 
-update : Action -> Todos -> Todos
+update : Action -> Todos -> (Todos, Cmd Action)
 update action todos =
-  case action of 
-    NoOp -> todos
-    Add -> addItem todos
-    UpdateField str -> 
-      {todos | field = str}
+  case action of
+    NoOp -> (todos, Cmd.none)
+    Add -> (addItem todos, Cmd.none)
+    UpdateField str ->
+      ({todos | field = str}, Cmd.none)
 
-actions : Signal.Mailbox Action
-actions =
-  Signal.mailbox NoOp
+subscriptions : Todos -> Sub Action
+subscriptions todos =
+  Sub.none
 
-model : Signal Todos
-model =
-  Signal.foldp update initTodos  actions.signal
+init : (Todos, Cmd Action)
+init =
+  (initTodos, Cmd.none)
 
-main : Signal Html
-main = 
-  Signal.map (view actions.address) model
+main =
+  Html.program {init = init, update = update, view = view, subscriptions = subscriptions}
