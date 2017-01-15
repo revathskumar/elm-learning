@@ -1,44 +1,27 @@
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (on, targetValue)
+import Html.Events exposing (onInput)
+import String
 
-type alias User = String
+main = Html.beginnerProgram { model = "", update = update, view = view}
 
-type Action = NoOp | UpdateName String
+type Msg = Content String
 
-view : Signal.Address Action -> User -> Html
-view address user =
+update (Content content) oldContent =
+  content
+
+view content =
   div [] [
     div [] [
       span [] [text "Enter Your Name :: "],
       input [
-        type' "text", 
+        type_ "text",
         name "name",
-        value user,
-        on "input" targetValue (Signal.message address <<  UpdateName)
+        value content,
+        onInput Content
       ] []
     ],
     div [] [
-      span [] [text ("My Name is " ++ user)]
+      span [] [text ("My Name is " ++ content)]
     ]
   ]
-
-update : Action -> User -> User
-update action user =
-  case action of
-    NoOp -> user
-    UpdateName str ->
-      str
-
-actions : Signal.Mailbox Action
-actions =
-    Signal.mailbox NoOp
-
-model : Signal User
-model =
-    Signal.foldp update ""  actions.signal
-
-main : Signal Html
-main = 
-    Signal.map (view actions.address) model
-
