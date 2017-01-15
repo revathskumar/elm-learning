@@ -4,32 +4,32 @@ import Html.Events exposing (onClick)
 type alias Model = Int
 type Action = NoOp | Inc | Dec
 
-update : Action -> Model -> Model
+update : Action -> Model -> ( Model, Cmd Action)
 update action model =
   case action of
-    NoOp -> model
-    Inc -> model + 1
-    Dec -> model - 1
+    NoOp -> (model, Cmd.none)
+    Inc -> (model + 1, Cmd.none)
+    Dec -> (model - 1, Cmd.none)
 
-view : Signal.Address Action -> Model -> Html
-view address model = 
+view : Model -> Html Action
+view model =
   div [] [
     div [] [text "Counter"],
     div [] [text ("From model :: " ++ (toString model))],
     div [] [
-      button [onClick address Dec] [text "-"],
+      button [onClick Dec] [text "-"],
       span [] [text (toString model)],
-      button [onClick address Inc] [text "+"]
+      button [onClick Inc] [text "+"]
     ]
   ]
 
-actions : Signal.Mailbox Action 
-actions = 
-  Signal.mailbox NoOp
+init : ( Model, Cmd Action )
+init =
+  (0, Cmd.none)
 
-model : Signal Model
-model =
-  Signal.foldp update 0 actions.signal
+subscriptions : Model -> Sub Action
+subscriptions model =
+  Sub.none
 
-main : Signal Html
-main = Signal.map (view actions.address) model
+main =
+  Html.program {init = init, update = update, view = view, subscriptions = subscriptions}
