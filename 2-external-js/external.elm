@@ -16,7 +16,7 @@ main =
 import Html exposing (..)
 import Html.Attributes exposing (..)
 
-main : Html
+main : Html msg
 main =
   div [id "main"] [
     div [class "welcome"] [text "Hello World!!"],
