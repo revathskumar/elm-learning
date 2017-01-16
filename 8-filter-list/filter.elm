@@ -22,16 +22,16 @@ type Action = NoOp | UpdateField String
 
 -- View
 
-view : Signal.Address Action -> Fruits -> Html
-view address fruits = 
+view : Fruits -> Html Action
+view fruits =
   div [] [
     div [] [text "Filter the list"],
     div [] [
       label [for "filter"] [text "Filter names"],
       input [
-        type' "text", 
+        type_ "text",
         id "filter",
-        on "input" targetValue (Signal.message address << UpdateField)
+        onInput UpdateField
       ] []
     ],
     div [] [
@@ -43,26 +43,26 @@ filterItem : String -> String -> Bool
 filterItem str item =
   String.startsWith str item
 
-listItem : String -> Html
-listItem item = 
+listItem : String -> Html msg
+listItem item =
   li [] [text item]
 
 -- Update
-update : Action -> Fruits -> Fruits
-update action fruits  = 
+update : Action -> Fruits -> (Fruits, Cmd Action)
+update action fruits  =
   case action of
-    NoOp -> fruits
+    NoOp -> (fruits, Cmd.none)
     UpdateField str ->
-      {fruits | field = str}
+      ({fruits | field = str}, Cmd.none)
 
 
-actions : Signal.Mailbox Action
-actions = 
-  Signal.mailbox NoOp
+init : (Fruits, Cmd Action)
+init =
+  (initFruits, Cmd.none)
 
-model : Signal Fruits
-model = 
-  Signal.foldp update initFruits actions.signal
+subscriptions : Fruits -> Sub Action
+subscriptions fruits =
+  Sub.none
 
-main : Signal Html
-main = Signal.map (view actions.address) model 
+main =
+  Html.program {init = init, update = update, view = view, subscriptions = subscriptions}
