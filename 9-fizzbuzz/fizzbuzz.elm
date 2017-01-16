@@ -1,4 +1,4 @@
-import Graphics.Element exposing (..)
+import Element exposing (toHtml, show)
 import List
 
 fizzBuzz : Int -> String
@@ -7,6 +7,4 @@ fizzBuzz i =
     if i % 3 == 0 then "Fizz" else
       if i % 5 == 0 then "Buzz" else toString(i)
 
-    
-
-main = show (List.map fizzBuzz [1..15])
+main = toHtml (show (List.map fizzBuzz (List.range 1 15)))
